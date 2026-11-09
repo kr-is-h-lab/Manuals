@@ -1,0 +1,131 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Manuals"><meta name="theme-color" content="#0a0f1a">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><title>Flight Manuals</title>
+<style>
+:root{--bg:#f2f4f8;--cd:#fff;--tx:#0e1726;--mu:#6b7686;--ac:#1668e3;--ln:#e3e7ee;--hl:#ffe46b}
+@media(prefers-color-scheme:dark){:root{--bg:#0a0f1a;--cd:#141b2a;--tx:#eaf0fa;--mu:#8e9bb0;--ac:#5b9bff;--ln:#222c40;--hl:#7a6a00}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 -apple-system,system-ui,"Segoe UI",sans-serif}
+html{height:100%}body{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top)}
+header{padding:18px 16px 8px;flex:none;background:var(--bg)}
+h1{margin:0 0 10px;font-size:28px;letter-spacing:-.5px}
+#q{width:100%;border:1px solid var(--ln);background:var(--cd);color:var(--tx);border-radius:14px;padding:13px 16px;font-size:17px;outline:none}
+#q:focus{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 25%,transparent)}
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:6px 16px calc(84px + env(safe-area-inset-bottom))}
+.card{background:var(--cd);border:1px solid var(--ln);border-radius:16px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.res{display:block;width:100%;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.res:active{transform:scale(.99)}
+.chip{display:inline-block;font-size:12px;font-weight:600;color:var(--ac);background:color-mix(in srgb,var(--ac) 14%,transparent);border-radius:999px;padding:3px 10px;margin-right:6px}
+.pgn{font-size:13px;color:var(--mu)}
+.sn{margin:8px 0 0;font-size:15px;color:var(--tx);opacity:.9}
+mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 1px}
+.sub,.mu{color:var(--mu);font-size:14px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button,.btn{font:inherit;font-size:15px;font-weight:600;border:0;border-radius:12px;padding:9px 14px;background:color-mix(in srgb,var(--ac) 14%,transparent);color:var(--ac);cursor:pointer}
+.btn.p{background:var(--ac);color:#fff}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:8px 16px calc(8px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--ln);z-index:6}
+nav button{flex:1;background:none;color:var(--mu);padding:11px}nav button.on{background:color-mix(in srgb,var(--ac) 14%,transparent);color:var(--ac)}
+.note{font-size:13px;color:var(--mu);text-align:center;margin:18px 8px}
+#v{position:fixed;inset:0;background:var(--bg);z-index:20;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#v[hidden]{display:none}
+.vh,.vf{display:flex;align-items:center;gap:8px;padding:8px 12px}.vf{padding-bottom:calc(10px + env(safe-area-inset-bottom));justify-content:center}
+#vt{flex:1;font-weight:600;font-size:15px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#stage{flex:1;overflow:auto;padding:8px;-webkit-overflow-scrolling:touch;background:color-mix(in srgb,var(--bg) 70%,#888)}
+.pg{position:relative;margin:0 auto;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.25)}.pg i{position:absolute;background:rgba(255,214,0,.4);mix-blend-mode:multiply;border-radius:2px}
+#pn{width:64px;text-align:center;border:1px solid var(--ln);background:var(--cd);color:var(--tx);border-radius:10px;padding:8px;font-size:16px}
+#chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}#chips::-webkit-scrollbar{display:none}#chips button{white-space:nowrap;background:var(--cd);color:var(--mu);border:1px solid var(--ln);padding:7px 13px;font-size:14px}#chips button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#111c;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:30;display:none}
+</style></head><body>
+<header><h1>Flight Manuals</h1><input id="q" type="search" placeholder="Search MEL, POH, manuals…" enterkeyhint="search" autocomplete="off"><div id="chips"></div></header>
+<main id="main"></main>
+<nav><button data-t="s" class="on">Search</button><button data-t="l">Library</button></nav>
+<div id="v" hidden><div class="vh"><button id="vb">‹ Back</button><div id="vt"></div><button id="z1">−</button><button id="z2">+</button></div><div id="stage"></div>
+<div class="vf"><button id="pp">‹</button><input id="pn" type="number" inputmode="numeric"><span id="pt" class="mu"></span><button id="px">›</button></div></div>
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const SLOTS=[['A','Operations Manual A','Part A'],['B','Operations Manual B','Part B · Vol I'],['C','Operations Manual C','Part C'],['D','Operations Manual D','Part D'],['L','C208B POH · 675 hp Legacy','Pilot’s Operating Handbook'],['E','C208B POH · 867 hp EX','Pilot’s Operating Handbook'],['M','MEL · C208 G1000','Minimum Equipment List']].map(([id,name,sub])=>({id,name,sub}));
+const NAME=Object.fromEntries(SLOTS.map(s=>[s.id,s.name]));
+const $=s=>document.querySelector(s),esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const db=new Promise((ok,no)=>{const r=indexedDB.open('manuals',1);r.onupgradeneeded=()=>{['files','text','meta'].forEach(n=>r.result.createObjectStore(n))};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+const tx=async(s,m,f)=>{const d=await db;return new Promise((ok,no)=>{const t=d.transaction(s,m),q=f(t.objectStore(s));t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>no(t.error)})};
+const get=(s,k)=>tx(s,'readonly',o=>o.get(k)),put=(s,k,v)=>tx(s,'readwrite',o=>o.put(v,k));
+const STOP=new Set('a an the of to in on at is are was be for and or what how when do does did i my with by from as it this that can if which who where there any all about many much tell me please give show list'.split(' '));
+const stem=w=>{if(w.length>4)w=w.replace(/(ing|ed|es|s)$/,'');return w.length>3?w.replace(/e$/,''):w};
+const bad=t=>{const c=t.replace(/\s/g,'');if(c.length<40)return true;return(c.match(/[A-Za-z0-9]/g)||[]).length/c.length<.6||(t.match(/[A-Za-z]{3,}/g)||[]).length<4};
+const GR='standby stby stdby sby;power pwr;system sys syst;engine eng;generator gen genr;battery batt bat;indicator ind indic;inoperative inop inoper;emergency emerg emer;electrical elec elect;hydraulic hyd hydr;pressure press pres;temperature temp;instrument instr inst;navigation nav;communication comm comms;transponder xpdr xpndr;automatic auto;flight flt;minimum min;maximum max;equipment equip eqpt;required reqd req;restricted restr;maintenance maint mx;procedure proc;limitation limit lim;weight wt wgt;landing ldg;approach appr;propeller prop;governor gov;starter strtr;ignition ign;torque trq;display disp dsp;heading hdg;course crs;distance dist;frequency freq;position pos;light lt ltg;warning wrn warn;caution caut;annunciator annun;circuit ckt;breaker bkr brkr;avionics avncs;altimeter altm;airspeed arspd;oxygen oxy;extinguisher extg'.split(';').map(g=>g.split(' '));
+const CAN={},GRP={};GR.forEach(g=>{GRP[g[0]]=g;g.forEach(v=>{CAN[v]=CAN[stem(v)]=g[0]})});
+const ACR={cb:['circuit','breaker'],elt:['emergency','locator','transmitter'],gpu:['ground','power','unit']};
+function seg(t){if(t.length<5)return null;for(let i=2;i<=t.length-2;i++){const a=t.slice(0,i),b=t.slice(i);if(CAN[a]){const r=CAN[b]?[b]:seg(b);if(r)return[a,...r]}}return null}
+const norm1=t=>{const s=stem(t),c=CAN[t]||CAN[s];if(c)return[c];const p=seg(t);return p?p.map(x=>CAN[x]):[s]};
+const tok=s=>(s.toLowerCase().match(/[a-z0-9]+/g)||[]).flatMap(t=>[...norm1(t),...(ACR[t]||[]).map(x=>norm1(x)[0])]);
+let META={},TXT={},D=[],INV=new Map(),AVG=1,TAB='s',BUSY={},VW=null,PC={},tk=0;
+const toast=t=>{const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display='none',2600)};
+async function load(){for(const s of SLOTS){const m=await get('meta',s.id);if(m){META[s.id]=m;TXT[s.id]=await get('text',s.id)||[]}}build()}
+function build(){D=[];INV=new Map();let tot=0;for(const s of SLOTS){const t=TXT[s.id];if(!t)continue;t.forEach((x,i)=>{const w=tok(x),f=new Map(),d=D.length;w.forEach(a=>f.set(a,(f.get(a)||0)+1));D.push({s:s.id,p:i+1,l:w.length});tot+=w.length;f.forEach((n,a)=>{let l=INV.get(a);if(!l)INV.set(a,l=[]);l.push([d,n])})})}AVG=(tot/(D.length||1))||1}
+function search(q){const raw=(q.toLowerCase().match(/[a-z0-9]+/g)||[]).filter(x=>!STOP.has(x)),w=[...new Set(tok(raw.join(' ')))],hl=[...new Set(raw.flatMap(r=>{const c=CAN[r]||CAN[stem(r)];return c?GRP[c].filter(v=>v.length>2):[stem(r)]}))];if(!w.length)return{w,r:[],hl};
+ const N=D.length,sc=new Map(),ql=q.toLowerCase().trim();
+ for(const t of w){const ls=INV.has(t)?[INV.get(t)]:t.length>3?[...INV].filter(([k])=>k.startsWith(t)).slice(0,25).map(x=>x[1]):[];for(const l of ls){const idf=Math.log(1+(N-l.length+.5)/(l.length+.5));for(const[d,n]of l){if(SEL.size&&!SEL.has(D[d].s))continue;const L=D[d].l/AVG,a=sc.get(d)||[0,0];a[0]+=idf*n*2.2/(n+1.2*(.25+.75*L));if(a[2]!==t){a[2]=t;a[1]++}sc.set(d,a)}}}
+ const qs=tok(raw.join(' '));let c=[...sc].map(([d,[s,m]])=>[d,s*(.3+.7*m/w.length),m]);
+ const full=c.filter(x=>x[2]>=w.length);if(full.length&&w.length>1)c=full;
+ c.sort((x,y)=>y[1]-x[1]);c=c.slice(0,120);
+ if(w.length>1)c=c.map(([d,s,m])=>{const t=tok(TXT[D[d].s][D[d].p-1]),ev=[];t.forEach((x,i)=>w.forEach((q,k)=>{if(x===q||(!INV.has(q)&&q.length>3&&x.startsWith(q)))ev.push([i,k])}));
+  let span=1e9;const need=new Set(ev.map(e=>e[1])).size,cnt=new Map();let j=0;for(let i=0;i<ev.length;i++){cnt.set(ev[i][1],(cnt.get(ev[i][1])||0)+1);while(cnt.size>=need&&j<=i){span=Math.min(span,ev[i][0]-ev[j][0]+1);const k=ev[j][1];cnt.set(k,cnt.get(k)-1);if(!cnt.get(k))cnt.delete(k);j++}}
+  let adj=false;if(qs.length>1)for(let i=0;i+qs.length<=t.length&&!adj;i++)adj=qs.every((q,k)=>t[i+k]===q);
+  return[d,s*(1+1.5*Math.min(1,need/span)+(adj?1.5:0)),m]});
+ const r=c.sort((x,y)=>y[1]-x[1]).slice(0,30);return{w,r,hl}}
+const mkre=w=>new RegExp('\\b('+w.map(v=>v.length<4?v+'\\b':v+'[a-z0-9]*').join('|')+')','gi');
+function snip(t,re){re.lastIndex=0;const ms=[];let m;while((m=re.exec(t))&&ms.length<400){ms.push([m.index,stem(m[1].toLowerCase())]);if(!m[0].length)re.lastIndex++}
+ let bi=0,bs=-1;for(let i=0;i<ms.length;i++){const z=new Set();for(let j=i;j<ms.length&&ms[j][0]-ms[i][0]<240;j++)z.add(ms[j][1]);if(z.size>bs){bs=z.size;bi=ms[i][0]}}
+ const a=Math.max(0,bi-60);return(a?'…':'')+esc(t.slice(a,a+270)).replace(re,'<mark>$&</mark>')}
+let RES=[];
+function renderSearch(){const q=$('#q').value.trim(),el=$('#main');
+ if(!D.length){el.innerHTML='<div class="card"><b>No documents yet</b><p class="sub">Open the Library tab and import your PDFs to start searching.</p></div>';return}
+ if(!q){el.innerHTML='<div class="card"><b>Ask anything</b><p class="sub">Try “MEL ADS-B out inoperative”, “max crosswind”, or “duty time limits”. Results show the document and page; tap to open it.</p></div><div class="note">A search aid only. Always confirm in the source page.</div>';return}
+ const{w,r,hl}=search(q);RES=r.map(([d])=>D[d]);
+ if(!r.length){el.innerHTML='<div class="card"><b>No matches</b><p class="sub">Try different or fewer words. Scanned pages need “Read scanned pages” in the Library.</p></div>';return}
+ const re=mkre(hl);RE=re;
+ el.innerHTML=r.map(([d],i)=>`<button class="card res" data-i="${i}"><span class="chip">${esc(NAME[D[d].s])}</span><span class="pgn">Page ${D[d].p}</span><p class="sn">${snip(TXT[D[d].s][D[d].p-1],re)}</p></button>`).join('')+'<div class="note">A search aid only. Always confirm in the source page.</div>';el.scrollTop=0}
+let RE=null;
+function renderLib(){$('#main').innerHTML=SLOTS.map(s=>{const m=META[s.id],b=BUSY[s.id],sc=m?(TXT[s.id]||[]).filter((t,i)=>bad(t)&&!(m.done||[]).includes(i)).length:0;
+ return`<div class="card"><b>${s.name}</b><div class="sub">${s.sub}</div><div class="mu" style="margin-top:6px">${b||(m?`${m.pages} pages · added ${new Date(m.date).toLocaleDateString()}`:'Not imported')}</div>
+ ${b?'':`<div class="btns"><label class="btn ${m?'':'p'}">${m?'Replace with new version':'Import PDF'}<input type="file" accept="application/pdf" hidden data-s="${s.id}"></label>${m?`<button data-o="${s.id}">Open</button>`:''}${sc>3?`<button data-ocr="${s.id}">Read scanned pages (${sc})</button>`:''}</div>`}</div>`}).join('')+'<div class="note">Documents are stored only on this device.</div>'}
+const SH={A:'Ops A',B:'Ops B',C:'Ops C',D:'Ops D',L:'POH Legacy',E:'POH EX',M:'MEL'};let SEL=new Set();
+function chips(){const el=$('#chips');el.style.display=TAB==='s'&&D.length?'flex':'none';el.innerHTML=`<button data-c="" class="${SEL.size?'':'on'}">All</button>`+SLOTS.filter(s=>META[s.id]).map(s=>`<button data-c="${s.id}" class="${SEL.has(s.id)?'on':''}">${SH[s.id]}</button>`).join('')}
+$('#chips').onclick=e=>{const b=e.target.closest('button');if(!b)return;const c=b.dataset.c;if(!c)SEL.clear();else SEL.has(c)?SEL.delete(c):SEL.add(c);chips();renderSearch()};
+const render=()=>{chips();TAB==='s'?renderSearch():renderLib()};
+function prog(id,t){if(t==null)delete BUSY[id];else BUSY[id]=t;if(TAB==='l')renderLib()}
+async function importFile(id,f){try{prog(id,'Reading file…');navigator.storage&&navigator.storage.persist&&navigator.storage.persist();
+ const buf=await f.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:buf.slice(0)}).promise,n=pdf.numPages,t=[];
+ for(let i=1;i<=n;i++){const p=await pdf.getPage(i),c=await p.getTextContent();t.push(c.items.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim());p.cleanup();if(i%5==0)prog(id,`Indexing page ${i} of ${n}…`)}
+ await put('files',id,buf);await put('text',id,t);await put('meta',id,{pages:n,date:Date.now()});if(PC.s===id){PC={}}
+ META[id]={pages:n,date:Date.now()};TXT[id]=t;build();prog(id,null);toast('Imported '+NAME[id])}catch(e){prog(id,null);toast('Import failed: '+e.message)}}
+async function ocr(id){let wl;try{const t=TXT[id],dn=new Set(META[id].done||[]),todo=t.map((x,i)=>bad(x)&&!dn.has(i)?i:-1).filter(i=>i>=0);prog(id,'Preparing text recognition…');try{wl=await navigator.wakeLock.request('screen')}catch(e){}
+ const b=await get('files',id),pdf=await pdfjsLib.getDocument({data:b}).promise,w=await Tesseract.createWorker('eng');
+ for(let k=0;k<todo.length;k++){const p=await pdf.getPage(todo[k]+1),vp=p.getViewport({scale:2.5}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
+  await p.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;t[todo[k]]=(await w.recognize(cv)).data.text.replace(/\s+/g,' ').trim();cv.width=0;prog(id,`Reading scanned page ${k+1} of ${todo.length}… keep this screen open`);dn.add(todo[k]);if(k%10==9){await put('text',id,t);META[id].done=[...dn];await put('meta',id,META[id])}}
+ await w.terminate();await put('text',id,t);META[id].done=[...dn];await put('meta',id,META[id]);build();wl&&wl.release&&wl.release();prog(id,null);toast('Scanned pages are now searchable')}catch(e){prog(id,null);wl&&wl.release&&wl.release();toast('Text recognition failed: '+e.message)}}
+async function openPdf(s){if(PC.s===s)return PC.p;if(PC.p)PC.p.destroy();const b=await get('files',s);PC={s,p:await pdfjsLib.getDocument({data:b}).promise};return PC.p}
+async function show(s,pg,re){const p=await openPdf(s);VW={s,pg:Math.min(Math.max(1,pg),p.numPages),re,z:1,pdf:p};$('#vt').textContent=NAME[s];$('#v').hidden=false;draw()}
+async function draw(){const my=++tk,{pg,re,z,pdf}=VW,p=await pdf.getPage(pg);if(my!==tk)return;const st=$('#stage'),b=p.getViewport({scale:1}),s=(st.clientWidth-16)/b.width*z,vp=p.getViewport({scale:s}),dpr=Math.min(devicePixelRatio||1,2);
+ const cv=document.createElement('canvas');cv.width=vp.width*dpr;cv.height=vp.height*dpr;cv.style.cssText=`width:${vp.width}px;height:${vp.height}px;display:block`;
+ const w=document.createElement('div');w.className='pg';w.style.cssText=`width:${vp.width}px;height:${vp.height}px`;w.append(cv);
+ await p.render({canvasContext:cv.getContext('2d'),viewport:p.getViewport({scale:s*dpr})}).promise;if(my!==tk)return;
+ if(re){const r=new RegExp(re.source,'i'),c=await p.getTextContent();for(const it of c.items){if(!it.str||!r.test(it.str))continue;const t=pdfjsLib.Util.transform(vp.transform,it.transform),h=document.createElement('i');h.style.cssText=`left:${t[4]}px;top:${t[5]-it.height*s}px;width:${it.width*s}px;height:${it.height*s+2}px`;w.append(h)}}
+ if(my!==tk)return;st.replaceChildren(w);st.scrollTo(0,0);$('#pn').value=pg;$('#pt').textContent='of '+pdf.numPages}
+const go=n=>{if(VW&&n>=1&&n<=VW.pdf.numPages){VW.pg=n;draw()}};
+$('#vb').onclick=()=>{$('#v').hidden=true;tk++};$('#pp').onclick=()=>go(VW.pg-1);$('#px').onclick=()=>go(VW.pg+1);$('#pn').onchange=e=>go(+e.target.value);
+$('#z1').onclick=()=>{VW.z=Math.max(.6,VW.z-.4);draw()};$('#z2').onclick=()=>{VW.z=Math.min(3,VW.z+.4);draw()};
+$('#main').addEventListener('click',e=>{const r=e.target.closest('[data-i]');if(r){const x=RES[+r.dataset.i];show(x.s,x.p,RE);return}
+ const o=e.target.closest('[data-o]');if(o)show(o.dataset.o,1,null);const c=e.target.closest('[data-ocr]');if(c)ocr(c.dataset.ocr)});
+$('#main').addEventListener('change',e=>{const s=e.target.dataset.s;if(s&&e.target.files[0])importFile(s,e.target.files[0])});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{TAB=b.dataset.t;document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));render()});
+let dt;$('#q').addEventListener('input',()=>{clearTimeout(dt);dt=setTimeout(()=>{if(TAB!=='s')document.querySelector('nav [data-t=s]').click();else renderSearch()},250)});
+$('#q').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur()});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+load().then(()=>{if(!D.length){TAB='l';document.querySelector('nav [data-t=l]').click()}else render()});
+</script></body></html>
